@@ -29,9 +29,12 @@ class OsmMapView extends MapView {
       children: [
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.psinder_app',
+          userAgentPackageName: 'com.mimal.psinder_app',
         ),
-        MarkerLayer(markers: pois.map(_toMarker).toList()),
+        MarkerLayer(
+          rotate: true,
+          markers: pois.map(_toMarker).toList(),
+        ),
       ],
     );
   }

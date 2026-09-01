@@ -12,15 +12,15 @@ enum MapBackend {
   google,
 
   /// OpenStreetMap tiles via `flutter_map`. No API key required.
-  osm,
+  openStreetMap,
 }
 
 /// Selects the active map backend.
 ///
-/// Defaults to [MapBackend.osm] so the app runs with zero configuration.
+/// Defaults to [MapBackend.openStreetMap] so the app runs with zero configuration.
 /// Override this provider (e.g. in `ProviderScope.overrides`) to switch to
 /// Google Maps once a key is wired up.
-final mapBackendProvider = Provider<MapBackend>((ref) => MapBackend.osm);
+final mapBackendProvider = Provider<MapBackend>((ref) => MapBackend.openStreetMap);
 
 /// One interface, many implementations.
 ///
@@ -52,7 +52,7 @@ abstract class MapView extends StatelessWidget {
           initialCamera: initialCamera,
           pois: pois,
         );
-      case MapBackend.osm:
+      case MapBackend.openStreetMap:
         return OsmMapView(
           key: key,
           initialCamera: initialCamera,
