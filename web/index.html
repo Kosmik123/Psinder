@@ -33,12 +33,14 @@
   <link rel="manifest" href="manifest.json">
 
   <!--
-    Google Maps JavaScript API — required by google_maps_flutter on the web.
-    Replace YOUR_GOOGLE_MAPS_API_KEY with a key that has "Maps JavaScript API"
-    enabled and is restricted by HTTP referrer. The key is visible in client
-    code on web, so referrer restriction is the protection.
+    Google Maps JavaScript API — ONLY needed when MapBackend.google is used on
+    web. The app defaults to MapBackend.osm (OpenStreetMap, no key), so this
+    stays commented out. To enable Google Maps on web: uncomment and replace
+    YOUR_GOOGLE_MAPS_API_KEY with a key that has "Maps JavaScript API" enabled
+    and is restricted by HTTP referrer.
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
   -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
 </head>
 <body>
   <!--

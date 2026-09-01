@@ -1,10 +1,14 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'geo_pos.dart';
 
 /// A point of interest shown on the map.
 ///
 /// Mirrors the planned Firestore `points/{pointId}` document
 /// (lat, lng, title, description, imageUrl, createdBy). For now instances
 /// are hard-coded; later they will be deserialized from Firestore.
+///
+/// Deliberately free of any map-provider types — rendering a [Poi] as a
+/// Google marker or a flutter_map marker is the job of the concrete
+/// `MapView` implementation.
 class Poi {
   const Poi({
     required this.id,
@@ -17,14 +21,6 @@ class Poi {
   final String id;
   final String title;
   final String description;
-  final LatLng position;
+  final GeoPos position;
   final String? imageUrl;
-
-  Marker toMarker() {
-    return Marker(
-      markerId: MarkerId(id),
-      position: position,
-      infoWindow: InfoWindow(title: title, snippet: description),
-    );
-  }
 }

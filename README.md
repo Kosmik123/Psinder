@@ -5,7 +5,10 @@ Mobilna aplikacja Flutter — interaktywna mapa społecznościowa z punktami zai
 ## Stan projektu
 
 Etap 1 (obecny): klient startowy. Po uruchomieniu wyświetla się pełnoekranowa mapa
-Google wycentrowana na Krakowie z 3 hard-kodowanymi pinezkami restauracji.
+wycentrowana na Krakowie z 3 hard-kodowanymi pinezkami restauracji.
+
+Warstwa mapy jest **polimorficzna**: jeden interfejs `MapView`, dwie implementacje —
+OpenStreetMap (domyślna, bez klucza) oraz Google Maps (wymaga klucza API).
 
 Kolejne etapy: Firebase (Auth, Firestore, Storage, Messaging), role admin/user,
 znajomi, posty, czat 1:1.
@@ -14,25 +17,44 @@ znajomi, posty, czat 1:1.
 
 - Flutter + Dart, state management: **Riverpod** (`flutter_riverpod`)
 - Nawigacja: **go_router**
-- Mapy: **google_maps_flutter** (docelowo + geoflutterfire2 do zapytań geograficznych)
+- Mapy: **flutter_map** (OpenStreetMap) + **google_maps_flutter** za wspólnym
+  interfejsem; docelowo + geoflutterfire2 do zapytań geograficznych
 - Backend (później): Firebase
 
 ## Struktura `lib/`
 
 ```
 lib/
-  main.dart                       # ProviderScope + MaterialApp.router
-  app/router.dart                 # konfiguracja go_router
+  main.dart                          # ProviderScope + MaterialApp.router
+  app/router.dart                    # konfiguracja go_router
   features/
     map/
-      domain/poi.dart             # model POI (odpowiednik points/{pointId})
-      data/poi_repository.dart     # poiListProvider — na razie dane hard-kodowane
-      presentation/map_screen.dart # ekran startowy z GoogleMap
+      domain/
+        geo_pos.dart                 # GeoPos, MapCamera — typy neutralne wobec backendu
+        poi.dart                     # model POI (odpowiednik points/{pointId})
+      data/poi_repository.dart       # poiListProvider, kKrakowInitialCamera — dane hard-kodowane
+      presentation/
+        map_view.dart                # abstract MapView + MapView.forBackend() + mapBackendProvider
+        osm_map_view.dart            # implementacja OpenStreetMap (flutter_map)
+        google_map_view.dart         # implementacja Google Maps (google_maps_flutter)
+        map_screen.dart              # ekran startowy — wybiera implementację wg mapBackendProvider
 ```
 
-## Konfiguracja klucza Google Maps
+## Wybór backendu mapy
 
-Klucz nie jest trzymany w repo. 
+Domyślnie `MapBackend.osm` — działa bez żadnej konfiguracji. Aby przełączyć na
+Google Maps, nadpisz `mapBackendProvider`:
+
+```dart
+ProviderScope(
+  overrides: [mapBackendProvider.overrideWithValue(MapBackend.google)],
+  child: const PsinderApp(),
+)
+```
+
+## Konfiguracja klucza Google Maps (potrzebna tylko dla `MapBackend.google`)
+
+Klucz nie jest trzymany w repo.
 
 **Android:** w `android/local.properties` (plik jest w `.gitignore`) dodaj:
 
@@ -43,12 +65,11 @@ MAPS_API_KEY=twoj_klucz_api
 `build.gradle.kts` wstrzykuje go do `AndroidManifest.xml` przez `manifestPlaceholders`.
 
 **iOS:** w `ios/Runner/AppDelegate.swift` dodaj `import GoogleMaps` oraz
-`GMSServices.provideAPIKey("twoj_klucz_api")` w `didFinishLaunchingWithOptions`
-(najlepiej czytając klucz z pliku spoza repo lub z `.xcconfig`).
+`GMSServices.provideAPIKey("twoj_klucz_api")` w `didFinishLaunchingWithOptions`.
 
-**Web:** w `web/index.html` podmień `YOUR_GOOGLE_MAPS_API_KEY` w tagu
-`<script src="https://maps.googleapis.com/maps/api/js?key=...">`. Klucz jest
-widoczny w kodzie klienta — ogranicz go przez **HTTP referrer** w Cloud Console.
+**Web:** w `web/index.html` odkomentuj tag `<script src="https://maps.googleapis.com/maps/api/js?key=...">`
+i podmień `YOUR_GOOGLE_MAPS_API_KEY`. Klucz jest widoczny w kodzie klienta —
+ogranicz go przez **HTTP referrer** w Cloud Console.
 
 Klucz API musi mieć włączone odpowiednie API w Google Cloud Console:
 **Maps SDK for Android**, **Maps SDK for iOS**, **Maps JavaScript API** (web).
