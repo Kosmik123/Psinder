@@ -14,10 +14,12 @@ class OsmMapView extends MapView {
     super.key,
     required super.initialCamera,
     required super.pois,
+    super.userLocation,
   });
 
   @override
   Widget build(BuildContext context) {
+    final location = userLocation;
     return FlutterMap(
       options: MapOptions(
         initialCenter: ll.LatLng(
@@ -28,9 +30,20 @@ class OsmMapView extends MapView {
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: 'https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.mimal.psinder_app',
         ),
+        if (location != null)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: ll.LatLng(location.lat, location.lng),
+                width: 24,
+                height: 24,
+                child: const _MyLocationDot(),
+              ),
+            ],
+          ),
         MarkerLayer(
           rotate: true,
           markers: pois.map(_toMarker).toList(),
@@ -48,6 +61,31 @@ class OsmMapView extends MapView {
       child: Tooltip(
         message: '${poi.title}\n${poi.description}',
         child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+      ),
+    );
+  }
+}
+
+/// The familiar "current location" blue dot: a filled circle with a white
+/// ring and a soft shadow so it stays legible over any map tile.
+class _MyLocationDot extends StatelessWidget {
+  const _MyLocationDot();
+
+  @override
+  Widget build(BuildContext context) {
+    const blue = Color(0xFF1A73E8);
+    return Center(
+      child: Container(
+        width: 18,
+        height: 18,
+        decoration: BoxDecoration(
+          color: blue,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: const [
+            BoxShadow(color: Colors.black26, blurRadius: 4, spreadRadius: 1),
+          ],
+        ),
       ),
     );
   }
