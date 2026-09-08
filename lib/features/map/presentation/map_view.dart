@@ -33,10 +33,16 @@ abstract class MapView extends StatelessWidget {
     super.key,
     required this.initialCamera,
     required this.pois,
+    this.userLocation,
   });
 
   final MapCamera initialCamera;
   final List<Poi> pois;
+
+  /// The device's current position, or `null` while it is unknown (permission
+  /// not yet granted, first fix pending, …). Concrete views render it as a
+  /// distinct "you are here" marker.
+  final GeoPos? userLocation;
 
   /// Builds the concrete [MapView] for [backend].
   factory MapView.forBackend(
@@ -44,6 +50,7 @@ abstract class MapView extends StatelessWidget {
     Key? key,
     required MapCamera initialCamera,
     required List<Poi> pois,
+    GeoPos? userLocation,
   }) {
     switch (backend) {
       case MapBackend.google:
@@ -51,12 +58,14 @@ abstract class MapView extends StatelessWidget {
           key: key,
           initialCamera: initialCamera,
           pois: pois,
+          userLocation: userLocation,
         );
       case MapBackend.openStreetMap:
         return OsmMapView(
           key: key,
           initialCamera: initialCamera,
           pois: pois,
+          userLocation: userLocation,
         );
     }
   }

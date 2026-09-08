@@ -11,17 +11,23 @@ class GoogleMapView extends MapView {
     super.key,
     required super.initialCamera,
     required super.pois,
+    super.userLocation,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Once [userLocation] is non-null the app has already resolved the runtime
+    // permission, so it is safe to switch on Google's native blue-dot layer
+    // (and its recenter button).
+    final hasLocation = userLocation != null;
     return gmaps.GoogleMap(
       initialCameraPosition: gmaps.CameraPosition(
         target: gmaps.LatLng(initialCamera.target.lat, initialCamera.target.lng),
         zoom: initialCamera.zoom,
       ),
       markers: pois.map(_toMarker).toSet(),
-      myLocationButtonEnabled: false,
+      myLocationEnabled: hasLocation,
+      myLocationButtonEnabled: hasLocation,
     );
   }
 
